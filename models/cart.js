@@ -1,6 +1,4 @@
 //{products:[{id,qty}],total}
-
-const { Console } = require("console");
 const fs = require("fs");
 const path = require("path");
 const rootDir = require("../util/path");

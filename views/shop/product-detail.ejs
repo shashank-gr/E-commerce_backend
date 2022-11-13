@@ -16,26 +16,8 @@
             <p >
               <%= description %>
           </p>
-          <%- include('../includes/add-to-cart.ejs',{product:product}) %>
+          <%- include('../includes/add-to-cart.ejs',{product:prod}) %>
         </div>
           </div>
-          <!-- <article class="card product-item">
-            <header class="card__header">
-                <h1 class="product__title">
-                    <%= title %>
-                </h1>
-            </header>
-            <div class="card__image">
-                <img src="<%= imageUrl %>" style="max-width: 200px;" alt="<%= title %>">
-            </div>
-            <div class="card__content">
-                <h2 class="product__price">$
-                    <%= price %>
-                </h2>
-                <p class="product__description">
-                    <%= description %>
-                </p>
-            </div>
-            </article> -->
         </main>
         <%- include('../includes/end.ejs') %>

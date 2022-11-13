@@ -2,9 +2,9 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll((products) => {
+  Product.fetchAll().then(([rows, metaData]) => {
     res.render("shop/product-list", {
-      prods: products,
+      prods: rows,
       pageTitle: "All Products",
       path: "/products",
     });
@@ -13,23 +13,26 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProductDetails = (req, res) => {
   const prodId = req.params.productId;
-  Product.fetchProductById(prodId, (product) => {
-    // console.log(product);
-    res.render("shop/product-detail", {
-      title: product.title,
-      imageUrl: product.imageUrl,
-      price: product.price,
-      description: product.description,
-      pageTitle: product.title,
-      path: "/products",
-    });
-  });
+  Product.fetchById(prodId)
+    .then(([row, metaData]) => {
+      const product = row[0];
+      res.render("shop/product-detail", {
+        prod: product,
+        title: product.title,
+        imageUrl: product.imageUrl,
+        price: product.price,
+        description: product.description,
+        pageTitle: "product Description",
+        path: "/products",
+      });
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll((products) => {
+  Product.fetchAll().then(([rows, metaData]) => {
     res.render("shop/index", {
-      prods: products,
+      prods: rows,
       pageTitle: "Shop",
       path: "/",
     });
