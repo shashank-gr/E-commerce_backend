@@ -13,18 +13,30 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  console.log(req.body);
   if (prodId) {
-    const product = new Product(prodId, title, imageUrl, description, price);
-    product.save().then(() => {
-      res.redirect("/");
+    Product.update(
+      {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+      {
+        where: { id: prodId },
+      }
+    ).then(() => {
+      res.redirect("/admin/products");
     });
   } else {
-    const product = new Product(null, title, imageUrl, description, price);
-    product
-      .save()
-      .then(() => {
-        res.redirect("/");
+    Product.create({
+      title,
+      imageUrl,
+      price,
+      description,
+    })
+      .then((result) => {
+        console.log(result);
+        res.redirect("/admin/products");
       })
       .catch((err) => console.log(err));
   }
@@ -32,26 +44,34 @@ exports.postAddProduct = (req, res, next) => {
 
 exports.postEditProduct = (req, res) => {
   const prodId = req.params.productId;
-  console.log(req.query.edit);
-  Product.fetchById(prodId).then(([row, metaData]) => {
+  Product.findByPk(prodId).then((product) => {
     res.render("admin/edit-product", {
-      prod: row[0],
+      prod: product,
       path: "",
       pageTitle: "Edit Product",
     });
   });
+  // console.log(req.query.edit);
+  // Product.fetchById(prodId).then(([row, metaData]) => {
+  //   res.render("admin/edit-product", {
+  //     prod: row[0],
+  //     path: "",
+  //     pageTitle: "Edit Product",
+  //   });
+  // });
 };
 
 exports.postDeleteProduct = (req, res) => {
   const prodId = req.params.productId;
-  Product.deleteById(prodId).then(() => {
-    res.redirect("/");
+  Product.destroy({ where: { id: prodId } }).then(() => {
+    res.redirect("/admin/products");
   });
 };
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll().then(([row, metaData]) => {
+  Product.findAll().then((products) => {
+    // console.log(products);
     res.render("admin/products", {
-      prods: row,
+      prods: products,
       pageTitle: "Admin Products",
       path: "/admin/products",
     });
