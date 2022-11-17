@@ -28,37 +28,46 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     });
   } else {
-    Product.create({
-      title,
-      imageUrl,
-      price,
-      description,
-    })
-      .then((result) => {
-        console.log(result);
+    req.user
+      .createProduct({
+        //createProduct is a special sequilezed function now association is defined
+        title,
+        imageUrl,
+        price,
+        description,
+      })
+      .then((user) => {
+        console.log(user);
         res.redirect("/admin/products");
       })
       .catch((err) => console.log(err));
+
+    //standard way of setting foreign key in Product table
+    //   Product.create({
+    //     title,
+    //     imageUrl,
+    //     price,
+    //     description,
+    //     userId: req.user.id, //adding to the foreign key
+    //   })
+    //     .then((result) => {
+    //       // console.log(result);
+    //       res.redirect("/admin/products");
+    //     })
+    //     .catch((err) => console.log(err));
   }
 };
 
 exports.postEditProduct = (req, res) => {
   const prodId = req.params.productId;
-  Product.findByPk(prodId).then((product) => {
+  req.user.getProducts({ where: { id: prodId } }).then((products) => {
+    const product = products[0];
     res.render("admin/edit-product", {
       prod: product,
       path: "",
       pageTitle: "Edit Product",
     });
   });
-  // console.log(req.query.edit);
-  // Product.fetchById(prodId).then(([row, metaData]) => {
-  //   res.render("admin/edit-product", {
-  //     prod: row[0],
-  //     path: "",
-  //     pageTitle: "Edit Product",
-  //   });
-  // });
 };
 
 exports.postDeleteProduct = (req, res) => {
@@ -68,8 +77,7 @@ exports.postDeleteProduct = (req, res) => {
   });
 };
 exports.getProducts = (req, res, next) => {
-  Product.findAll().then((products) => {
-    // console.log(products);
+  req.user.getProducts().then((products) => {
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
