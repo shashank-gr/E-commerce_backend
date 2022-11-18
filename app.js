@@ -8,6 +8,8 @@ const sequelize = require("./util/database");
 
 const Product = require("./models/product");
 const User = require("./models/user");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 
 const app = express();
 
@@ -34,24 +36,32 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.get404);
 
-//defining Association between models
-Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" }); //options added to user table, if user is deleted, then products is deleted
-User.hasMany(Product);
+//defining Association between user and product (one to many)
+//define options in first association or both
+User.hasMany(Product, { constraints: true, onDelete: "CASCADE" }); //options added to user table, if user is deleted, then products is deleted
+Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+//define association b/w user and cart (one to one)
+User.hasOne(Cart);
+Cart.belongsTo(User);
+//define association between product and cart (many to many)
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 sequelize
   .sync()
   .then((res) => {
-    return User.findByPk(1);
+    return User.findOrCreate({
+      where: { id: 1 },
+      defaults: { name: "Shashanka", email: "shashank@gmail.com" },
+    });
   })
   .then((user) => {
-    if (!user) {
-      return User.create({ name: "Shashank", email: "shashank@gmail.com" });
-    } else {
-      return user;
-    }
+    // console.log(user[0].dataValues);
+    return Cart.findOrCreate({ where: { userId: 1 }, defaults: {} });
+    // return user.createCart();
   })
-  .then((user) => {
-    // console.log(user.dataValues);
+  .then((cart) => {
+    // console.log(cart[0].dataValues);
     app.listen(3000);
   })
   .catch((err) => console.log(err));
