@@ -1,6 +1,8 @@
 const path = require("path");
+
 const dotenv = require("dotenv");
 dotenv.config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -41,6 +43,11 @@ app.use((req, res, next) => {
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+//for front end deployment
+app.use((req, res) => {
+  console.log(req.url); // to get the url
+  res.sendFile(path.join(__dirname, "frontend", `${req.url}`));
+});
 app.use(errorController.get404);
 
 //defining Association between user and product (one to many)
