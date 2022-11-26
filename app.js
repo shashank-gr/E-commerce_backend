@@ -1,8 +1,11 @@
 const path = require("path");
-
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
+// console.log(process.env);
 const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
 
@@ -10,17 +13,21 @@ const Product = require("./models/product");
 const User = require("./models/user");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const OrderItem = require("./models/order-item");
 
 const app = express();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
-``;
+
 // db.execute("SELECT * FROM products").then().catch();
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
+app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
@@ -46,6 +53,12 @@ Cart.belongsTo(User);
 //define association between product and cart (many to many)
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+//one to many b/w user and order
+User.hasMany(Order);
+Order.belongsTo(User);
+//many to many b/w orders and products
+Order.belongsToMany(Product, { through: OrderItem });
+Product.belongsToMany(Order, { through: OrderItem });
 
 sequelize
   .sync()

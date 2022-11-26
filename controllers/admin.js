@@ -80,7 +80,7 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res) => {
   const prodId = req.params.productId;
   Product.destroy({ where: { id: prodId } }).then(() => {
-    res.redirect("/admin/products");
+    res.redirect("/");
   });
 };
 exports.getProducts = (req, res, next) => {
